@@ -1,13 +1,13 @@
 <domain type='kvm' xmlns:qemu='http://libvirt.org/schemas/domain/qemu/1.0'>
   <name>macOS-Simple-KVM</name>
   <uuid>d06d502a-904a-4b34-847d-debf1a3d76c7</uuid>
-  <memory unit='KiB'>2097152</memory>
-  <currentMemory unit='KiB'>2097152</currentMemory>
+  <memory unit='GiB'>4</memory>
+  <currentMemory unit='GiB'>4</currentMemory>
   <vcpu placement='static'>4</vcpu>
   <os>
     <type arch='x86_64' machine='MACHINE'>hvm</type>
-    <loader readonly='yes' type='pflash'>VMDIR/firmware/OVMF_CODE.fd</loader>
-    <nvram>VMDIR/firmware/OVMF_VARS-1024x768.fd</nvram>
+    <loader readonly='yes' type='pflash'>NVRAMDIR/OVMF_CODE.fd</loader>
+    <nvram>NVRAMDIR/OVMF_VARS-1024x768.fd</nvram>
     <boot dev='hd'/>
   </os>
   <features>
@@ -35,14 +35,20 @@
     <disk type='file' device='disk'>
       <driver name='qemu' type='qcow2'/>
       <source file='VMDIR/ESP.qcow2'/>
-      <target dev='sda' bus='sata'/>
-      <address type='drive' controller='0' bus='0' target='0' unit='0'/>
+      <target dev='sda' bus='virtio'/>
+      <address type='pci' controller='0' bus='0' target='0' unit='0'/>
     </disk>
     <disk type='file' device='disk'>
       <driver name='qemu' type='raw'/>
       <source file='VMDIR/BaseSystem.img'/>
-      <target dev='sdb' bus='sata'/>
-      <address type='drive' controller='0' bus='0' target='0' unit='1'/>
+      <target dev='sdb' bus='virtio'/>
+      <address type='pci' controller='0' bus='0' target='0' unit='1'/>
+    </disk>
+    <disk type='file' device='disk'>
+      <driver name='qemu' type='qcow2'/>
+      <source file='VMDIR/macOS.qcow2'/>
+      <target dev='sdc' bus='virtio'/>
+      <address type='pci' controller='0' bus='0' target='0' unit='1'/>
     </disk>
     <controller type='usb' index='0' model='ich9-ehci1'>
       <address type='pci' domain='0x0000' bus='0x00' slot='0x1d' function='0x7'/>
@@ -65,7 +71,7 @@
     <interface type='network'>
       <mac address='52:54:00:92:d4:7b'/>
       <source network='default'/>
-      <model type='e1000-82545em'/>
+      <model type='vmxnet3'/>
       <address type='pci' domain='0x0000' bus='0x00' slot='0x02' function='0x0'/>
     </interface>
     <serial type='pty'>

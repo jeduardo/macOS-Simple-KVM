@@ -3,9 +3,11 @@
 # make.sh: Generate customized libvirt XML.
 # by Foxlet <foxlet@furcode.co>
 
-VMDIR=$PWD
+OUTDIR=$PWD
+VMDIR=/var/lib/libvirt/images/
+NVRAMDIR=/var/lib/libvirt/qemu/nvram/
 MACHINE="$(qemu-system-x86_64 --machine help | grep q35 | cut -d" " -f1 | grep -Eoe ".*-[0-9.]+" | sort -rV | head -1)"
-OUT="template.xml"
+OUT="$OUTDIR/template.xml"
 
 print_usage() {
     echo
@@ -21,8 +23,11 @@ error() {
 }
 
 generate(){
-    sed -e "s|VMDIR|$VMDIR|g" -e "s|MACHINE|$MACHINE|g" tools/template.xml.in > $OUT
-    echo "$OUT has been generated in $VMDIR"
+    sed -e "s|VMDIR|$VMDIR|g" \
+      -e "s|MACHINE|$MACHINE|g" \
+      -e "s|NVRAMDIR|$NVRAMDIR|g" \
+      tools/template.xml.in > "$OUT"
+    echo "$OUT has been generated"
 }
 
 generate
@@ -30,7 +35,7 @@ generate
 argument="$1"
 case $argument in
     -a|--add)
-        sudo virsh define $OUT
+        sudo virsh define "$OUT"
         ;;
     -h|--help)
         print_usage
